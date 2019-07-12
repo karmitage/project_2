@@ -7,8 +7,11 @@ var db = require("./models");
 var app = express();
 
 //Socket.io set up
-const http = require('http').createServer(app);
-var io = require("socket.io")(http);
+
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+
+
 var PORT = process.env.PORT || 3000;
 
 // Middleware
@@ -37,41 +40,30 @@ if (process.env.NODE_ENV === "test") {
   syncOptions.force = true;
 }
 
-io.on("connection", function (socket) {
-  console.log('new connection: ' + socket.id)
+io.on('connection', function (socket) {
+  console.log('a user connected on socket: ' + socket.id);
 
-  // Message Recieved
-  socket.on('msg', (message) => {
-    // Broadcast to everyone else (except the sender)
-    socket.broadcast.emit('msg', {
-      from: socket.id,
-      message: message
-    })
-    // Send back the same message to the sender
-    socket.emit('msg', {
-      from: socket.id,
-      message: message
-    })
-
-  })
-
-  // Disconnected
+  //function to handle chat messages from clients
+  socket.on('chat message', function (msg) {
+    //first, emit the message
+    io.emit('chat message', msg);
+    //then save it to the db....
+  });
   socket.on('disconnect', function () {
-    console.log('disconnect: ' + socket.id)
-    // io.emit('disconnect', socket.id)
-  })
+    console.log('user disconnected from socket ' + socket.id);
 
+  });
 });
 
 // Starting the server, syncing our models ------------------------------------/
-db.sequelize.sync(syncOptions).then(function () {
-  app.listen(PORT, function () {
-    console.log(
-      "==> 🌎  Listening on port %s. Visit http://localhost:%s/ in your browser.",
-      PORT,
-      PORT
-    );
-  });
+//db.sequelize.sync(syncOptions).then(function () {
+http.listen(PORT, function () {
+  console.log(
+    "==> 🌎  Listening on port %s. Visit http://localhost:%s/ in your browser.",
+    PORT,
+    PORT
+  );
 });
+//});
 
 module.exports = app;
