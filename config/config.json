@@ -1,8 +1,13 @@
 {
   "development": {
     "username": "root",
+<<<<<<< HEAD
     "password": "MyNewPass",
     "database": "exampledb",
+=======
+    "password": "MYSQL_Password",
+    "database": "chat_db",
+>>>>>>> 85eb9de99239a85d4af3d78154680cf46ad26169
     "host": "localhost",
     "dialect": "mysql"
   },
